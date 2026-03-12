@@ -4,6 +4,14 @@ A terminal UI for the Dropbox desktop client, built with [OpenTUI](https://opent
 
 Browse your local and remote Dropbox files, manage sync exclusions, and share links — all from the terminal.
 
+### Local tab
+
+![Local tab — browse synced files](assets/screenshot-local.png)
+
+### Server tab
+
+![Server tab — browse full Dropbox via API with sync status](assets/screenshot-server.png)
+
 ## Requirements
 
 - [Bun](https://bun.sh) v1+
