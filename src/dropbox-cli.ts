@@ -42,6 +42,7 @@ export async function dbxLs(dirPath: string): Promise<FileEntry[]> {
   try {
     const dirEntries = await readdir(resolvedDir, { withFileTypes: true })
     for (const d of dirEntries) {
+      if (d.name === ".dropbox.cache") continue
       entries.push({ name: d.name, status: "", isDir: d.isDirectory() })
     }
   } catch {
@@ -175,6 +176,7 @@ async function dbxServerLsLocal(dirPath: string): Promise<ServerEntry[]> {
   try {
     const dirEntries = await readdir(resolvedDir, { withFileTypes: true })
     for (const d of dirEntries) {
+      if (d.name === ".dropbox.cache") continue
       const fullP = resolve(resolvedDir, d.name)
       const isDir = d.isDirectory()
       let syncState: SyncState = "synced"
