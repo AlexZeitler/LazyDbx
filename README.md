@@ -35,7 +35,7 @@ Each user creates their own Dropbox App. The app credentials and tokens stay on 
 Go to https://www.dropbox.com/developers/apps and create a new app:
 
 - **Access type**: Scoped access, Full Dropbox
-- **Permissions tab**: Enable `account_info.read` and `files.metadata.read`
+- **Permissions tab**: Enable `account_info.read`, `files.metadata.read`, and `sharing.write`
 
 ### 2. Initialize config
 

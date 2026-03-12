@@ -84,3 +84,45 @@ export async function apiListFolder(accessToken: string, path: string): Promise<
 
   return entries
 }
+
+/**
+ * Create or retrieve a shared link for a file/folder via Dropbox API.
+ * Requires sharing.write scope.
+ */
+export async function apiShareLink(accessToken: string, path: string): Promise<string> {
+  // Try to create a new shared link
+  const res = await fetch("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ path }),
+  })
+
+  if (res.ok) {
+    const data = await res.json() as { url: string }
+    return data.url
+  }
+
+  // If link already exists, fetch it
+  const err = await res.json() as { error?: { ".tag"?: string } }
+  if (err.error?.[".tag"] === "shared_link_already_exists") {
+    const listRes = await fetch("https://api.dropboxapi.com/2/sharing/list_shared_links", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ path, direct_only: true }),
+    })
+    if (listRes.ok) {
+      const listData = await listRes.json() as { links: Array<{ url: string }> }
+      if (listData.links.length > 0) {
+        return listData.links[0]!.url
+      }
+    }
+  }
+
+  throw new Error("Failed to create share link")
+}

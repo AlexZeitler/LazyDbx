@@ -328,7 +328,7 @@ function getStatusHints() {
   if (state.activeTab === "local") {
     return t`${fg(C.muted)("Tab · j/k · Enter open · u up · e excl · s share · y copy · f status · r refresh · q quit")}`
   }
-  return t`${fg(C.muted)("Tab switch · j/k nav · Enter open · u up · Space toggle sync · a auth · r refresh · q quit")}`
+  return t`${fg(C.muted)("Tab switch · j/k nav · Enter open · u up · Space toggle · s share · y copy · a auth · r refresh · q quit")}`
 }
 
 function updateStatusbar() {
@@ -708,6 +708,36 @@ function setupKeyboard() {
         }
         return
       }
+      if (key.name === "s") {
+        const entry = state.serverEntries[state.serverIndex]
+        if (entry && accessToken) {
+          const hintNode = renderer.root.findDescendantById("detail-hint") as TextRenderable | null
+          try {
+            const { apiShareLink } = await import("./dropbox-api.ts")
+            const dropboxPath = entry.path.replace(DROPBOX_HOME, "")
+            const link = await apiShareLink(accessToken, dropboxPath)
+            state.lastLink = link
+            if (hintNode) {
+              hintNode.content = t`${fg(C.cyan)(`${link}  (y → copy)`)}`
+            }
+          } catch (e) {
+            if (hintNode) {
+              hintNode.content = t`${fg(C.red)(`Share failed: ${e}`)}`
+            }
+          }
+        }
+        return
+      }
+      if (key.name === "y") {
+        if (state.lastLink) {
+          await copyToClipboard(state.lastLink)
+          const hintNode = renderer.root.findDescendantById("detail-hint") as TextRenderable | null
+          if (hintNode) {
+            hintNode.content = t`${fg(C.green)("Copied!")}`
+          }
+        }
+        return
+      }
     }
   })
 }
@@ -797,6 +827,7 @@ async function initCommand() {
   console.log("│  Required scopes (Permissions tab):         │")
   console.log("│    account_info.read                        │")
   console.log("│    files.metadata.read                      │")
+  console.log("│    sharing.write                            │")
   console.log("└─────────────────────────────────────────────┘\n")
 
   const appKey = await rl.question("App Key: ")
