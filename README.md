@@ -7,7 +7,7 @@ Browse your local and remote Dropbox files, manage sync exclusions, and share li
 ## Requirements
 
 - [Bun](https://bun.sh) v1+
-- Dropbox desktop client installed and running (`dropbox start`)
+- Dropbox desktop client installed and running — either via `dropbox start` or as a [headless systemd service](https://alexanderzeitler.com/articles/run-dropbox-headless-as-a-service-without-user-session-login/)
 - A [Dropbox App](https://www.dropbox.com/developers/apps) for API access (optional, enables Server tab — see below)
 
 ## Install
