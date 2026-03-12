@@ -2,7 +2,7 @@
 
 A terminal UI for Dropbox, built with [OpenTUI](https://opentui.com/) and Bun.
 
-Browse your local and remote Dropbox files, manage sync exclusions, and share links — all from the terminal.
+Browse your local and remote Dropbox files, manage sync, and share links — all from the terminal.
 
 ### Local tab
 
