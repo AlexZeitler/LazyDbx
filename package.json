@@ -1,0 +1,17 @@
+{
+  "name": "lazydbx",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "lazydbx": "./lazydbx"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.1.79"
+  }
+}
