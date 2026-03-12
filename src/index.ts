@@ -201,8 +201,13 @@ function buildLayout() {
     id: "tab-server",
     content: t`${fg(C.muted)("[ Server ]")}`,
   })
+  const tabHint = new TextRenderable(renderer, {
+    id: "tab-hint",
+    content: t`${fg(C.muted)("")}`,
+  })
   tabBar.add(tabLocal)
   tabBar.add(tabServer)
+  tabBar.add(tabHint)
   root.add(tabBar)
 
   // Content area (row: list + detail)
@@ -321,6 +326,13 @@ function updateTabBar() {
     serverNode.content = state.activeTab === "server"
       ? t`${fg(C.accent)("[> Server ]")}`
       : t`${fg(C.muted)("[ Server ]")}`
+  }
+
+  const hintNode = renderer.root.findDescendantById("tab-hint") as TextRenderable | null
+  if (hintNode) {
+    hintNode.content = !state.running
+      ? t`${fg(C.red)("Server mode requires Dropbox to be running")}`
+      : t`${fg(C.muted)("")}`
   }
 }
 
@@ -505,6 +517,9 @@ async function refresh() {
 
 // --- Tab switching ---
 async function switchTab() {
+  if (!state.running && state.activeTab === "local") {
+    return
+  }
   state.activeTab = state.activeTab === "local" ? "server" : "local"
   updateTabBar()
   updateStatusbar()
@@ -762,10 +777,22 @@ async function main() {
     state.running = await dbxRunning()
     state.status = state.running ? await dbxStatus() : "not running"
     updateHeader()
+    updateTabBar()
 
     await loadLocalEntries()
     buildLocalSelect()
     updateDetail()
+
+    // Periodic status polling
+    setInterval(async () => {
+      const wasRunning = state.running
+      state.running = await dbxRunning()
+      state.status = state.running ? await dbxStatus() : "not running"
+      updateHeader()
+      if (wasRunning !== state.running) {
+        updateTabBar()
+      }
+    }, 5_000)
   } catch (err) {
     renderer.destroy()
     console.error("Failed to start lazydbx:", err)
