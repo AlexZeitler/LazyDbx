@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.0] - 2026-03-18
+
+### Added
+
+- Theming support with Omarchy auto-detection
+- Theme cascade: Omarchy `colors.toml` → `config.json` `theme` section → Tokyo Night defaults
+- All UI colors configurable via theme
+
 ## [0.3.0] - 2026-03-18
 
 ### Fixed
