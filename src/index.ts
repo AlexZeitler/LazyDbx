@@ -426,6 +426,7 @@ function buildLocalSelect() {
     showDescription: true,
     showScrollIndicator: true,
     wrapSelection: true,
+    selectedIndex: state.localIndex,
   })
 
   localSelect.on(SelectRenderableEvents.SELECTION_CHANGED, (i: number) => {
@@ -434,6 +435,9 @@ function buildLocalSelect() {
   })
 
   listPanel.add(localSelect)
+  if (state.localIndex > 0) {
+    localSelect.setSelectedIndex(state.localIndex)
+  }
   if (state.activeTab === "local") {
     localSelect.focus()
   }
@@ -470,6 +474,7 @@ function buildServerSelect() {
     showDescription: true,
     showScrollIndicator: true,
     wrapSelection: true,
+    selectedIndex: state.serverIndex,
   })
 
   serverSelect.on(SelectRenderableEvents.SELECTION_CHANGED, (i: number) => {
@@ -478,6 +483,9 @@ function buildServerSelect() {
   })
 
   listPanel.add(serverSelect)
+  if (state.serverIndex > 0) {
+    serverSelect.setSelectedIndex(state.serverIndex)
+  }
   if (state.activeTab === "server") {
     serverSelect.focus()
   }
@@ -487,7 +495,7 @@ function buildServerSelect() {
 async function loadLocalEntries() {
   const path = fullPath(state.currentPath)
   state.entries = await dbxLs(path)
-  state.localIndex = 0
+  state.localIndex = Math.min(state.localIndex, Math.max(0, state.entries.length - 1))
 }
 
 async function loadServerEntries() {
@@ -497,7 +505,7 @@ async function loadServerEntries() {
   }
   const dirPath = fullPath(state.serverPath)
   state.serverEntries = await dbxServerLs(dirPath, accessToken ?? undefined)
-  state.serverIndex = 0
+  state.serverIndex = Math.min(state.serverIndex, Math.max(0, state.serverEntries.length - 1))
 }
 
 async function refresh() {
@@ -560,6 +568,7 @@ function setupKeyboard() {
           state.currentPath = state.currentPath
             ? join(state.currentPath, entry.name)
             : entry.name
+          state.localIndex = 0
           await loadLocalEntries()
           buildLocalSelect()
           updateHeader()
@@ -575,9 +584,11 @@ function setupKeyboard() {
       if (key.name === "u") {
         if (state.currentPath) {
           const parts = state.currentPath.split("/")
-          parts.pop()
+          const previousDir = parts.pop()!
           state.currentPath = parts.join("/")
           await loadLocalEntries()
+          state.localIndex = state.entries.findIndex((e) => e.name === previousDir)
+          if (state.localIndex < 0) state.localIndex = 0
           buildLocalSelect()
           updateHeader()
           updateDetail()
@@ -644,6 +655,7 @@ function setupKeyboard() {
           state.serverPath = state.serverPath
             ? join(state.serverPath, entry.name)
             : entry.name
+          state.serverIndex = 0
           await loadServerEntries()
           buildServerSelect()
           updateHeader()
@@ -663,9 +675,11 @@ function setupKeyboard() {
       if (key.name === "u") {
         if (state.serverPath) {
           const parts = state.serverPath.split("/")
-          parts.pop()
+          const previousDir = parts.pop()!
           state.serverPath = parts.join("/")
           await loadServerEntries()
+          state.serverIndex = state.serverEntries.findIndex((e) => e.name === previousDir)
+          if (state.serverIndex < 0) state.serverIndex = 0
           buildServerSelect()
           updateHeader()
           updateDetail()
