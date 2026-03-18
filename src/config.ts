@@ -8,6 +8,7 @@ export interface Config {
   accessToken?: string
   refreshToken?: string
   expiresAt?: number // Unix timestamp ms
+  theme?: Record<string, string>
 }
 
 const CONFIG_DIR = join(homedir(), ".config", "lazydbx")

@@ -27,26 +27,14 @@ import {
   type ServerEntry,
 } from "./dropbox-cli.ts"
 import { loadConfig, saveConfig, configFilePath, type Config } from "./config.ts"
+import { loadTheme, type Theme } from "./theme.ts"
 import { ensureAuth, authorize, tryRefresh } from "./auth.ts"
 import { $ } from "bun"
 import { homedir } from "node:os"
 import { join } from "node:path"
 
-// --- Colors (Tokyo Night) ---
-const C = {
-  bg: "#1a1b26",
-  panel: "#16161e",
-  sel: "#2a2d3e",
-  border: "#3b4261",
-  accent: "#7aa2f7",
-  green: "#9ece6a",
-  yellow: "#e0af68",
-  red: "#f7768e",
-  muted: "#565f89",
-  white: "#c0caf5",
-  cyan: "#7dcfff",
-  purple: "#bb9af7",
-}
+// --- Colors ---
+let C: Theme
 
 // --- State ---
 interface State {
@@ -812,8 +800,9 @@ async function main() {
   })
 
   try {
-    // Load config — only refresh existing tokens, never start full OAuth here
+    // Load config and theme
     appConfig = await loadConfig()
+    C = loadTheme(appConfig.theme)
     if (appConfig.appKey && appConfig.appSecret) {
       accessToken = await tryRefresh(appConfig)
     }
