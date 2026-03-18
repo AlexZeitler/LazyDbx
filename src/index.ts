@@ -677,7 +677,41 @@ function setupKeyboard() {
         if (entry) {
           if (entry.isDir) {
             if (entry.syncState === "excluded") {
-              await dbxExcludeRemove(entry.path)
+              const excludedPaths = await dbxExcludeList()
+              const excludedSet = new Set(excludedPaths)
+              if (excludedSet.has(entry.path)) {
+                // Directly in exclude list — simple remove
+                await dbxExcludeRemove(entry.path)
+              } else {
+                // Inherited from an excluded parent
+                const excludedParent = excludedPaths.find(
+                  (p) => entry.path.startsWith(p + "/"),
+                )
+                if (excludedParent) {
+                  if (!accessToken) {
+                    const hintNode = renderer.root.findDescendantById("detail-hint") as TextRenderable | null
+                    if (hintNode) {
+                      hintNode.content = t`${fg(C.red)("API auth required — parent folder is excluded")}`
+                    }
+                    return
+                  }
+                  // Remove the excluded parent
+                  await dbxExcludeRemove(excludedParent)
+                  // Walk down from excluded parent to target, excluding sibling dirs at each level
+                  const relPath = entry.path.slice(excludedParent.length + 1)
+                  const segments = relPath.split("/")
+                  let dir = excludedParent
+                  for (const segment of segments) {
+                    const siblings = await dbxServerLs(dir, accessToken)
+                    for (const s of siblings) {
+                      if (s.name !== segment && s.isDir) {
+                        await dbxExcludeAdd(s.path)
+                      }
+                    }
+                    dir = join(dir, segment)
+                  }
+                }
+              }
             } else {
               await dbxExcludeAdd(entry.path)
             }
