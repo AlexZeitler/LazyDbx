@@ -27,6 +27,8 @@ import {
   type ServerEntry,
 } from "./dropbox-cli.ts"
 import { loadConfig, saveConfig, configFilePath, type Config } from "./config.ts"
+
+const { version } = await import("../package.json")
 import { loadTheme, type Theme } from "./theme.ts"
 import { ensureAuth, authorize, tryRefresh } from "./auth.ts"
 import { $ } from "bun"
@@ -276,7 +278,7 @@ function buildLayout() {
   })
   const statusVersion = new TextRenderable(renderer, {
     id: "status-version",
-    content: t`${dim("lazydbx v0.1.0")}`,
+    content: t`${dim(`lazydbx v${version}`)}`,
   })
   statusbar.add(statusHints)
   statusbar.add(statusVersion)
