@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.1] - 2026-03-22
+
+### Fixed
+
+- Version in statusbar now read from package.json instead of hardcoded
+
 ## [0.4.0] - 2026-03-18
 
 ### Added
