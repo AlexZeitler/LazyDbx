@@ -20,10 +20,14 @@ Browse your local and remote Dropbox files, manage sync, and share links — all
 
 ## Install
 
-Global install (no source checkout needed):
+```bash
+npm install -g @alexzeitler/lazydbx
+```
+
+Or with bun:
 
 ```bash
-bun install -g github:alexzeitler/lazydbx
+bun install -g @alexzeitler/lazydbx
 ```
 
 ### From Source
