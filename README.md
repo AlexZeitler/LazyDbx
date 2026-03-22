@@ -21,12 +21,6 @@ Browse your local and remote Dropbox files, manage sync, and share links — all
 ## Install
 
 ```bash
-npm install -g @alexzeitler/lazydbx
-```
-
-Or with bun:
-
-```bash
 bun install -g @alexzeitler/lazydbx
 ```
 
