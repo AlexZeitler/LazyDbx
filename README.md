@@ -6,11 +6,11 @@ Browse your local and remote Dropbox files, manage sync, and share links — all
 
 ### Local tab
 
-![Local tab — browse synced files](assets/screenshot-local.png)
+![Local tab — browse synced files](https://raw.githubusercontent.com/alexzeitler/LazyDropbox/master/assets/screenshot-local.png)
 
 ### Server tab
 
-![Server tab — browse full Dropbox via API with sync status](assets/screenshot-server.png)
+![Server tab — browse full Dropbox via API with sync status](https://raw.githubusercontent.com/alexzeitler/LazyDropbox/master/assets/screenshot-server.png)
 
 ## Requirements
 
