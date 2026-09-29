@@ -1,8 +1,20 @@
 import { $ } from "bun"
 import { stat, readdir } from "node:fs/promises"
+import { realpathSync } from "node:fs"
 import { join, basename, dirname, resolve } from "node:path"
 import { homedir } from "node:os"
 import { apiListFolder } from "./dropbox-api.ts"
+
+function resolveDropboxHome(): string {
+  const defaultPath = join(homedir(), "Dropbox")
+  try {
+    return realpathSync(defaultPath)
+  } catch {
+    return defaultPath
+  }
+}
+
+export const DROPBOX_HOME = resolveDropboxHome()
 
 export interface FileEntry {
   name: string
@@ -59,15 +71,23 @@ export async function dbxLs(dirPath: string): Promise<FileEntry[]> {
 
 export async function dbxExcludeList(): Promise<string[]> {
   try {
-    const result = await $`dropbox exclude list`.text()
-    const lines = result.trim().split("\n").filter((l) => l.length > 0)
-    // First line is often a header like "Excluded:"
-    if (lines[0]?.toLowerCase().includes("excluded")) {
+    // dropbox exclude list prints paths relative to the process CWD, and the
+    // daemon resolves them against wherever the command runs. Pin it to the
+    // Dropbox root so results are stable regardless of where lazydbx started.
+    const result = await $`dropbox exclude list`.cwd(DROPBOX_HOME).text()
+    const trimmed = result.trim()
+    if (!trimmed || trimmed.toLowerCase().includes("no directories are being ignored")) {
+      return []
+    }
+
+    const lines = trimmed.split("\n").filter((l) => l.length > 0)
+    // Strip header line if present (e.g. "Excluded:")
+    if (lines[0]?.trim().toLowerCase() === "excluded:") {
       lines.shift()
     }
-    // Paths are relative to CWD — resolve to absolute paths
+
     return lines
-      .map((l) => resolve(l.trim()))
+      .map((l) => resolve(DROPBOX_HOME, l.trim()))
       .filter((l) => l.length > 0)
   } catch {
     return []
@@ -76,7 +96,7 @@ export async function dbxExcludeList(): Promise<string[]> {
 
 export async function dbxExcludeAdd(path: string): Promise<string> {
   try {
-    const result = await $`dropbox exclude add ${path}`.text()
+    const result = await $`dropbox exclude add ${path}`.cwd(DROPBOX_HOME).text()
     return result.trim()
   } catch (e) {
     return `Error: ${e}`
@@ -85,7 +105,7 @@ export async function dbxExcludeAdd(path: string): Promise<string> {
 
 export async function dbxExcludeRemove(path: string): Promise<string> {
   try {
-    const result = await $`dropbox exclude remove ${path}`.text()
+    const result = await $`dropbox exclude remove ${path}`.cwd(DROPBOX_HOME).text()
     return result.trim()
   } catch (e) {
     return `Error: ${e}`
@@ -109,8 +129,6 @@ export interface ServerEntry {
   syncState: SyncState
   isDir: boolean
 }
-
-const DROPBOX_HOME = join(homedir(), "Dropbox")
 
 /**
  * List all entries at one level for the Server tab.

@@ -23,6 +23,7 @@ import {
   dbxFileStatus,
   dbxShareLink,
   dbxServerLs,
+  DROPBOX_HOME,
   type FileEntry,
   type ServerEntry,
 } from "./dropbox-cli.ts"
@@ -32,7 +33,6 @@ const { version } = await import("../package.json")
 import { loadTheme, type Theme } from "./theme.ts"
 import { ensureAuth, authorize, tryRefresh } from "./auth.ts"
 import { $ } from "bun"
-import { homedir } from "node:os"
 import { join } from "node:path"
 
 // --- Colors ---
@@ -51,8 +51,6 @@ interface State {
   serverIndex: number
   lastLink: string
 }
-
-const DROPBOX_HOME = join(homedir(), "Dropbox")
 
 let appConfig: Config = {}
 let accessToken: string | null = null
